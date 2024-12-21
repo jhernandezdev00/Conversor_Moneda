@@ -14,20 +14,16 @@ public class mainClass {
         Properties prop = new Properties();
         prop.load(new FileInputStream("src/resource/archivosTexto.properties"));
 
-        //RatesUpadate actTasas = new RatesUpadate();
-        //Gson gson = new Gson();
-        //String response = String.valueOf(actTasas.RatesUpd());
-        //ConversorDivisa conversor = gson.fromJson(response, ConversorDivisa.class);
+        RatesUpadate actTasas = new RatesUpadate();
+        Gson gson = new Gson();
+        String response = String.valueOf(actTasas.RatesUpd("USD"));
+        ConversorDivisa conversor = gson.fromJson(response, ConversorDivisa.class);
 
         mainFrame mFrame = new mainFrame();
+        if(!(conversor.getResult().equals("success"))){
+            JOptionPane.showMessageDialog(mFrame,prop.getProperty("mensajedeAdvertencia"),"ADVERTENCIA",JOptionPane.ERROR_MESSAGE);
+        }
 
-        //if(conversor.getResult().equals("error")){
-            //JOptionPane.showMessageDialog(mFrame,prop.getProperty("mensaje_sinConexion"));
-        //}
-
-        //Map <String, Double> rates = conversor.getConversion_rates();
-        //System.out.println(rates.get("EUR"));
-        //System.out.println(conversor.getResult());
     }
 
 }

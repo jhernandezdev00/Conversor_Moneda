@@ -41,9 +41,11 @@ public class mainFrame extends JFrame {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(760,450);
         this.setLocationRelativeTo(null);
+        this.setIconImage(new ImageIcon(getClass().getResource("/resource/image/exchange.png")).getImage());
         this.setVisible(true);
         this.setResizable(false);
         this.setMinimumSize(new Dimension(760,450));
+        //this.setIconImage(new ImageIcon(getClass().getResource(prop.getProperty("ruta_imgIcon"))).getImage());
     }
 
     private void configurarFrame() {
@@ -123,6 +125,12 @@ public class mainFrame extends JFrame {
                 tiposDivisaOrigen.addItem(valor);
                 tiposDivisaDestino.addItem(valor);
             }
+
+            tiposDivisaOrigen.setBackground((new Color(237,251,205, 192)));
+            tiposDivisaOrigen.setForeground(Color.black);
+
+            tiposDivisaDestino.setBackground((new Color(237,251,205, 192)));
+            tiposDivisaDestino.setForeground(Color.black);
 
             gbc.gridx = 0;
             gbc.gridy = 2;
@@ -215,7 +223,7 @@ public class mainFrame extends JFrame {
                             resultados.add(btnRegresar,gbc1);
 
                         }else {
-                            JOptionPane.showMessageDialog(panelContenedor,"ADVERTENCIA","ADVERTENCIA",JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(mainPanel,prop.getProperty("mensajedeAdvertencia"),"ADVERTENCIA",JOptionPane.ERROR_MESSAGE);
                         }
 
                     } catch (IOException ex) {
