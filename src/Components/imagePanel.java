@@ -1,10 +1,10 @@
-package main;
+package Components;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class imagePanel {
-    protected void agregarImagenAlPanel(ImageIcon path, JPanel panel){
+    public void agregarImagenAlPanel(ImageIcon path, JPanel panel){
         panel.repaint();
         panel.add(new JPanel() {
             @Override
@@ -12,7 +12,6 @@ public class imagePanel {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
 
-                // Dibuja la imagen
                 g2d.drawImage(path.getImage(), 0, 0, getWidth(), getHeight(), this);
 
                 GradientPaint gradient = new GradientPaint(0, 0, new Color(0, 0, 0, 0),
@@ -21,8 +20,6 @@ public class imagePanel {
                 g2d.fillRect(0, 0, getWidth(), getHeight());
             }
         });
-
-        // Actualiza el panel después de agregar el nuevo componente
         panel.revalidate();
         panel.repaint();
     }
