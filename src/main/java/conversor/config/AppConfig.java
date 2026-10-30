@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 public final class AppConfig {
-    private static final String TEXTS = "/apptextos.properties";
+    private static final String TEXTS = Resources.CONFIG_TEXTOS;
     private final Properties texts;
 
     private AppConfig(Properties texts){

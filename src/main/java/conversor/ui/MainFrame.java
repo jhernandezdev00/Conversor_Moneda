@@ -1,5 +1,6 @@
 package conversor.ui;
 
+import conversor.config.Resources;
 import conversor.ui.components.RoundedButton;
 import conversor.service.ConversionService;
 import conversor.ui.components.ImagePanel;
@@ -63,7 +64,7 @@ public class MainFrame extends JFrame {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(760,450);
         this.setLocationRelativeTo(null);
-        this.setIconImage(new ImageIcon(getClass().getResource("/images/exchange.png")).getImage());
+        this.setIconImage(Resources.imagen(Resources.ICONO_APP).getImage());
         this.setResizable(false);
         this.setMinimumSize(new Dimension(760,450));
         this.setVisible(true);
@@ -82,7 +83,7 @@ public class MainFrame extends JFrame {
 
             //prop.load(new FileInputStream("src/main.resource/apptextos.properties"));
             //imagen_Prin = new ImageIcon(config.text("urlImageInicio"));
-            imagen_Prin = new ImageIcon(getClass().getResource(config.text("urlImageInicio")));
+            imagen_Prin = Resources.imagen(Resources.IMAGEN_INICIO);
 
             this.setTitle(config.text("titulo"));
 
@@ -93,7 +94,7 @@ public class MainFrame extends JFrame {
 
             JLabel titulo = new JLabel();
             String letter = ("<html>" + (config.text("titulo")).replace("\n", "<br>") + "</html>");
-            Font fontRaleway = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream(config.text("fontRal"))).deriveFont(30f);
+            Font fontRaleway = Resources.fuente(Resources.FUENTE_RALEWAY, 30f);
             titulo.setFont(fontRaleway);
 
             titulo.setText(letter);
@@ -141,9 +142,10 @@ public class MainFrame extends JFrame {
 
 
             //FileReader jsonDivisas = new FileReader("src/main.java.Components/Divisas.json");
-            Reader jsonDivisas = new InputStreamReader(
-                    getClass().getResourceAsStream("/data/Divisas.json"), StandardCharsets.UTF_8);
-            listDivisas = gson.fromJson(jsonDivisas, CurrencyCatalog.class);
+            //Reader jsonDivisas = new InputStreamReader(
+                    //getClass().getResourceAsStream("/data/Divisas.json"), StandardCharsets.UTF_8);
+
+            listDivisas = gson.fromJson(Resources.lector(Resources.DIVISAS_JSON), CurrencyCatalog.class);
 
             Collection<String> nameCountrys = listDivisas.getNames();
 
