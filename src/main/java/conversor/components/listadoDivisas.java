@@ -1,4 +1,4 @@
-package Components;
+package conversor.components;
 
 import java.util.Collection;
 import java.util.Map;

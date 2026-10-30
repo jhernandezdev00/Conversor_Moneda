@@ -1,13 +1,12 @@
-package Components;
+package conversor.components;
 
 import com.google.gson.Gson;
-import main.ConversorDivisa;
-import main.RatesUpadate;
+import conversor.ConversorDivisa;
+import conversor.RatesUpadate;
 
 import java.io.IOException;
-import java.util.Map;
 
-public class conversor {
+public class ConversionService {
     private Double montoConvertido;
     private Double conversion_rates;
 

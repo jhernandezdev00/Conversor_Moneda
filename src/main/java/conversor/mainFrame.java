@@ -1,19 +1,18 @@
-package main;
+package conversor;
 
-import Components.RoundedButton;
-import Components.conversor;
-import Components.imagePanel;
-import Components.listadoDivisas;
+import conversor.components.RoundedButton;
+import conversor.components.ConversionService;
+import conversor.components.imagePanel;
+import conversor.components.listadoDivisas;
 import com.google.gson.Gson;
-import config.AppConfig;
+import conversor.config.AppConfig;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Properties;
-import java.util.ResourceBundle;
 
 public class mainFrame extends JFrame {
     private JPanel mainPanel;
@@ -28,28 +27,46 @@ public class mainFrame extends JFrame {
     private JPanel panelContenedor = new JPanel();
     private Gson gson = new Gson();
     private listadoDivisas listDivisas = new listadoDivisas();
-    private conversor conv = new conversor();
+    private ConversionService conv = new ConversionService();
     //private Properties prop = new Properties();
     
+    //private final ConversionService.config.AppConfig config = ConversionService.config.AppConfig.load();
+
     private final AppConfig config = AppConfig.load();
-    
+
     private JLabel texto = new JLabel();
     private JPanel resultados = new JPanel();
 
     private JLabel resultado_Titulo = new JLabel();
     private RoundedButton btnRegresar = new RoundedButton();
 
+
+
     public mainFrame(){
+        // 1. Crear los paneles base
+        mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(new Color(0x615D60));
+
+        panelIzq = new JPanel(new BorderLayout());
+        panelIzq.setPreferredSize(new Dimension(250, 200));
+
+        panelDer = new JPanel(new BorderLayout());
+
+        mainPanel.add(panelIzq, BorderLayout.WEST);
+        mainPanel.add(panelDer, BorderLayout.CENTER);
+
+        // 2. Usarlos
         this.setContentPane(mainPanel);
         configurarFrame();
+
+        // 3. Configurar la ventana
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(760,450);
         this.setLocationRelativeTo(null);
-        this.setIconImage(new ImageIcon(getClass().getResource("/resource/image/exchange.png")).getImage());
-        this.setVisible(true);
+        this.setIconImage(new ImageIcon(getClass().getResource("/images/exchange.png")).getImage());
         this.setResizable(false);
         this.setMinimumSize(new Dimension(760,450));
-        //this.setIconImage(new ImageIcon(getClass().getResource(config.text("ruta_imgIcon"))).getImage());
+        this.setVisible(true);
     }
 
     private void configurarFrame() {
@@ -63,8 +80,9 @@ public class mainFrame extends JFrame {
 
         try{
 
-            //prop.load(new FileInputStream("src/resource/apptextos.properties"));
-            imagen_Prin = new ImageIcon(config.text("urlImageInicio"));
+            //prop.load(new FileInputStream("src/main.resource/apptextos.properties"));
+            //imagen_Prin = new ImageIcon(config.text("urlImageInicio"));
+            imagen_Prin = new ImageIcon(getClass().getResource(config.text("urlImageInicio")));
 
             this.setTitle(config.text("titulo"));
 
@@ -75,7 +93,7 @@ public class mainFrame extends JFrame {
 
             JLabel titulo = new JLabel();
             String letter = ("<html>" + (config.text("titulo")).replace("\n", "<br>") + "</html>");
-            Font fontRaleway = Font.createFont(Font.TRUETYPE_FONT, new File(config.text("fontRal"))).deriveFont(30f);
+            Font fontRaleway = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream(config.text("fontRal"))).deriveFont(30f);
             titulo.setFont(fontRaleway);
 
             titulo.setText(letter);
@@ -122,7 +140,9 @@ public class mainFrame extends JFrame {
             panelContenedor.add(registroCantidad,gbc);
 
 
-            FileReader jsonDivisas = new FileReader("src/Components/Divisas.json");
+            //FileReader jsonDivisas = new FileReader("src/main.java.Components/Divisas.json");
+            Reader jsonDivisas = new InputStreamReader(
+                    getClass().getResourceAsStream("/data/Divisas.json"), StandardCharsets.UTF_8);
             listDivisas = gson.fromJson(jsonDivisas, listadoDivisas.class);
             Collection<String> nameCountrys = listDivisas.getCountryList();
             for (String valor : nameCountrys) {

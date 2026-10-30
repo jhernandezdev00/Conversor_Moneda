@@ -1,16 +1,13 @@
-package main;
+package conversor;
 
-import Components.listadoDivisas;
 import com.google.gson.Gson;
-import config.AppConfig;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.util.Map;
 
 public class mainClass {
     public static void main (String[] args) throws IOException, InterruptedException {
-        AppConfig config = AppConfig.load();
+        conversor.config.AppConfig config = conversor.config.AppConfig.load();
 
         RatesUpadate actTasas = new RatesUpadate();
         Gson gson = new Gson();

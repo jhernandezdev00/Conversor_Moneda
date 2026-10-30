@@ -1,4 +1,4 @@
-package main;
+package conversor;
 
 import java.io.IOException;
 import java.net.URI;

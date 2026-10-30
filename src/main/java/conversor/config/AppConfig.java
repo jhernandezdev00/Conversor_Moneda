@@ -1,4 +1,4 @@
-package config;
+package conversor.config;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 public final class AppConfig {
-    private static final String TEXTS = "/resources/apptextos.properties";
+    private static final String TEXTS = "/apptextos.properties";
     private final Properties texts;
 
     private AppConfig(Properties texts){
