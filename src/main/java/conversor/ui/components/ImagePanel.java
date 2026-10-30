@@ -1,9 +1,9 @@
-package conversor.components;
+package conversor.ui.components;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class imagePanel {
+public class ImagePanel {
     public void agregarImagenAlPanel(ImageIcon path, JPanel panel){
         panel.repaint();
         panel.add(new JPanel() {

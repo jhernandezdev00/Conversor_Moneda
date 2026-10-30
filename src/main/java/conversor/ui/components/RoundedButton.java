@@ -1,4 +1,4 @@
-package conversor.components;
+package conversor.ui.components;
 
 import javax.swing.*;
 import java.awt.*;

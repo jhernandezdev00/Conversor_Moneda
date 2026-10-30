@@ -1,20 +1,23 @@
 package conversor;
 
 import com.google.gson.Gson;
+import conversor.model.ExchangeRateResponse;
+import conversor.service.ExchangeRateClient;
+import conversor.ui.MainFrame;
 
 import javax.swing.*;
 import java.io.IOException;
 
-public class mainClass {
+public class Main {
     public static void main (String[] args) throws IOException, InterruptedException {
         conversor.config.AppConfig config = conversor.config.AppConfig.load();
 
-        RatesUpadate actTasas = new RatesUpadate();
+        ExchangeRateClient actTasas = new ExchangeRateClient();
         Gson gson = new Gson();
         String response = String.valueOf(actTasas.RatesUpd("USD"));
-        ConversorDivisa conversor = gson.fromJson(response, ConversorDivisa.class);
+        ExchangeRateResponse conversor = gson.fromJson(response, ExchangeRateResponse.class);
 
-        mainFrame mFrame = new mainFrame();
+        MainFrame mFrame = new MainFrame();
         if(!(conversor.getResult().equals("success"))){
             JOptionPane.showMessageDialog(mFrame,config.text("mensajedeAdvertencia"),"ADVERTENCIA",JOptionPane.ERROR_MESSAGE);
         }

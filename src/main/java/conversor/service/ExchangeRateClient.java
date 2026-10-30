@@ -1,4 +1,4 @@
-package conversor;
+package conversor.service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -7,7 +7,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 
-public class RatesUpadate {
+public class ExchangeRateClient {
     public String RatesUpd(String nameCountry) throws IOException, InterruptedException {
 
         HttpClient client = HttpClient.newHttpClient();

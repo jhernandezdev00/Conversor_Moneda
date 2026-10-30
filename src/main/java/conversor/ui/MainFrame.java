@@ -1,9 +1,9 @@
-package conversor;
+package conversor.ui;
 
-import conversor.components.RoundedButton;
-import conversor.components.ConversionService;
-import conversor.components.imagePanel;
-import conversor.components.listadoDivisas;
+import conversor.ui.components.RoundedButton;
+import conversor.service.ConversionService;
+import conversor.ui.components.ImagePanel;
+import conversor.model.CurrencyCatalog;
 import com.google.gson.Gson;
 import conversor.config.AppConfig;
 
@@ -14,7 +14,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
-public class mainFrame extends JFrame {
+public class MainFrame extends JFrame {
     private JPanel mainPanel;
     private JPanel panelIzq;
     private JPanel panelDer;
@@ -26,7 +26,7 @@ public class mainFrame extends JFrame {
     private JPanel contenedorPrincipal = new JPanel();
     private JPanel panelContenedor = new JPanel();
     private Gson gson = new Gson();
-    private listadoDivisas listDivisas = new listadoDivisas();
+    private CurrencyCatalog listDivisas = new CurrencyCatalog();
     private ConversionService conv = new ConversionService();
     //private Properties prop = new Properties();
     
@@ -42,7 +42,7 @@ public class mainFrame extends JFrame {
 
 
 
-    public mainFrame(){
+    public MainFrame(){
         // 1. Crear los paneles base
         mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(new Color(0x615D60));
@@ -70,7 +70,7 @@ public class mainFrame extends JFrame {
     }
 
     private void configurarFrame() {
-        imagePanel imgPan = new imagePanel();
+        ImagePanel imgPan = new ImagePanel();
 
         panelIzq.setLayout(new BoxLayout(panelIzq, BoxLayout.Y_AXIS));
         panelIzq.setPreferredSize(new Dimension(200, 550));
@@ -143,8 +143,10 @@ public class mainFrame extends JFrame {
             //FileReader jsonDivisas = new FileReader("src/main.java.Components/Divisas.json");
             Reader jsonDivisas = new InputStreamReader(
                     getClass().getResourceAsStream("/data/Divisas.json"), StandardCharsets.UTF_8);
-            listDivisas = gson.fromJson(jsonDivisas, listadoDivisas.class);
-            Collection<String> nameCountrys = listDivisas.getCountryList();
+            listDivisas = gson.fromJson(jsonDivisas, CurrencyCatalog.class);
+
+            Collection<String> nameCountrys = listDivisas.getNames();
+
             for (String valor : nameCountrys) {
                 tiposDivisaOrigen.addItem(valor);
                 tiposDivisaDestino.addItem(valor);
@@ -200,8 +202,8 @@ public class mainFrame extends JFrame {
                     String CountryRate1 = String.valueOf(tiposDivisaOrigen.getSelectedItem());
                     String CountryRate2 = String.valueOf(tiposDivisaDestino.getSelectedItem());
 
-                    String claveCountryOrg = listDivisas.getCodCountry(CountryRate1);
-                    String claveCountryDes = listDivisas.getCodCountry(CountryRate2);
+                    String claveCountryOrg = listDivisas.getCode(CountryRate1);
+                    String claveCountryDes = listDivisas.getCode(CountryRate2);
 
                     System.out.println(claveCountryOrg);
                     System.out.println(claveCountryDes);
