@@ -5,6 +5,7 @@ import Components.conversor;
 import Components.imagePanel;
 import Components.listadoDivisas;
 import com.google.gson.Gson;
+import config.AppConfig;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,7 +29,10 @@ public class mainFrame extends JFrame {
     private Gson gson = new Gson();
     private listadoDivisas listDivisas = new listadoDivisas();
     private conversor conv = new conversor();
-    private Properties prop = new Properties();
+    //private Properties prop = new Properties();
+    
+    private final AppConfig config = AppConfig.load();
+    
     private JLabel texto = new JLabel();
     private JPanel resultados = new JPanel();
 
@@ -45,7 +49,7 @@ public class mainFrame extends JFrame {
         this.setVisible(true);
         this.setResizable(false);
         this.setMinimumSize(new Dimension(760,450));
-        //this.setIconImage(new ImageIcon(getClass().getResource(prop.getProperty("ruta_imgIcon"))).getImage());
+        //this.setIconImage(new ImageIcon(getClass().getResource(config.text("ruta_imgIcon"))).getImage());
     }
 
     private void configurarFrame() {
@@ -59,10 +63,10 @@ public class mainFrame extends JFrame {
 
         try{
 
-            prop.load(new FileInputStream("src/resource/archivosTexto.properties"));
-            imagen_Prin = new ImageIcon(prop.getProperty("urlImageInicio"));
+            //prop.load(new FileInputStream("src/resource/apptextos.properties"));
+            imagen_Prin = new ImageIcon(config.text("urlImageInicio"));
 
-            this.setTitle(prop.getProperty("titulo"));
+            this.setTitle(config.text("titulo"));
 
             Image imgTempEscal = imagen_Prin.getImage();
             Image imgUrlInit_Escalada = imgTempEscal.getScaledInstance(200,1000, Image.SCALE_SMOOTH);
@@ -70,8 +74,8 @@ public class mainFrame extends JFrame {
             imgPan.agregarImagenAlPanel(imgUrlInicio_Escalada,panelIzq);
 
             JLabel titulo = new JLabel();
-            String letter = ("<html>" + (prop.getProperty("titulo")).replace("\n", "<br>") + "</html>");
-            Font fontRaleway = Font.createFont(Font.TRUETYPE_FONT, new File(prop.getProperty("fontRal"))).deriveFont(30f);
+            String letter = ("<html>" + (config.text("titulo")).replace("\n", "<br>") + "</html>");
+            Font fontRaleway = Font.createFont(Font.TRUETYPE_FONT, new File(config.text("fontRal"))).deriveFont(30f);
             titulo.setFont(fontRaleway);
 
             titulo.setText(letter);
@@ -86,12 +90,12 @@ public class mainFrame extends JFrame {
             panelDer.add("Center",contenedorPrincipal);
             contenedorPrincipal.setBackground(new Color(237,251,205, 192));
 
-            JLabel titulo_Enu = new JLabel(("<html>" + (prop.getProperty("etiquetaTitulo")).replace("\n", "<br>") + "</html>"));
+            JLabel titulo_Enu = new JLabel(("<html>" + (config.text("etiquetaTitulo")).replace("\n", "<br>") + "</html>"));
             titulo_Enu.setFont(fontRaleway.deriveFont(20f));
             titulo_Enu.setHorizontalAlignment(SwingConstants.CENTER);
             contenedorPrincipal.add("North",titulo_Enu);
 
-            JLabel etiqueta_Pie = new JLabel(("<html>" + (prop.getProperty("etiquetaPie")).replace("\n", "<br>") + "</html>"));
+            JLabel etiqueta_Pie = new JLabel(("<html>" + (config.text("etiquetaPie")).replace("\n", "<br>") + "</html>"));
             etiqueta_Pie.setFont(fontRaleway.deriveFont(16f));
             etiqueta_Pie.setHorizontalAlignment(SwingConstants.CENTER);
             contenedorPrincipal.add("South",etiqueta_Pie);
@@ -101,7 +105,7 @@ public class mainFrame extends JFrame {
             contenedorPrincipal.add("Center", panelContenedor);
             GridBagConstraints gbc = new GridBagConstraints();
 
-            JLabel etiqueta_Instruccion = new JLabel(("<html>" + (prop.getProperty("etiquetaInstruccion")).replace("\n", "<br>") + "</html>"));
+            JLabel etiqueta_Instruccion = new JLabel(("<html>" + (config.text("etiquetaInstruccion")).replace("\n", "<br>") + "</html>"));
             etiqueta_Instruccion.setFont(fontRaleway.deriveFont(18f));
             gbc.gridx = 0;
             gbc.gridy = 0;
@@ -148,7 +152,7 @@ public class mainFrame extends JFrame {
             gbc.anchor = GridBagConstraints.WEST;
             panelContenedor.add(tiposDivisaDestino,gbc);
 
-            btnconversion.setText(prop.getProperty("botonConvertir"));
+            btnconversion.setText(config.text("botonConvertir"));
             gbc.gridx = 0;
             gbc.gridy = 5;
             gbc.anchor = GridBagConstraints.CENTER;
@@ -197,7 +201,7 @@ public class mainFrame extends JFrame {
                             gbc1.gridx = 0;
                             gbc1.gridy = 0;
                             gbc1.anchor = GridBagConstraints.CENTER;
-                            JLabel resultadoConversion = new JLabel(prop.getProperty("mensajeConversion"));
+                            JLabel resultadoConversion = new JLabel(config.text("mensajeConversion"));
                             gbc1.insets = new Insets(10, 10, 10, 10);
                             resultadoConversion.setFont(new Font("Arial", Font.BOLD, 30));
                             resultados.add(resultadoConversion,gbc1);
@@ -216,14 +220,14 @@ public class mainFrame extends JFrame {
                             divisasConvertida.setFont(new Font("Arial", Font.BOLD, 22));
                             resultados.add(divisasConvertida,gbc1);
 
-                            btnRegresar.setText(prop.getProperty("regresarMenu"));
+                            btnRegresar.setText(config.text("regresarMenu"));
                             gbc1.gridx = 0;
                             gbc1.gridy = 3;
                             gbc1.anchor = GridBagConstraints.CENTER;
                             resultados.add(btnRegresar,gbc1);
 
                         }else {
-                            JOptionPane.showMessageDialog(mainPanel,prop.getProperty("mensajedeAdvertencia"),"ADVERTENCIA",JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(mainPanel,config.text("mensajedeAdvertencia"),"ADVERTENCIA",JOptionPane.ERROR_MESSAGE);
                         }
 
                     } catch (IOException ex) {
