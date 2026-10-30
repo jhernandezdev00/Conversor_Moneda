@@ -31,3 +31,4 @@ bin/
 .env
 target/
 out/
+.idea/
