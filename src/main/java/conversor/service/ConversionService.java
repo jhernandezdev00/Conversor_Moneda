@@ -1,10 +1,13 @@
 package conversor.service;
 
+import conversor.model.Conversion;
 import conversor.model.ExchangeRates;
 import conversor.service.ExchangeRateException.Reason;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.Instant;
+import java.util.List;
 
 public class ConversionService {
     private static final String BASE_CODE = "USD";
@@ -18,19 +21,21 @@ public class ConversionService {
 
     public synchronized ExchangeRates rates() throws ExchangeRateException {
         if (cached == null || cached.isStale(Instant.now())) {
-            System.out.println("Descargando tasas...");
             cached = client.fetchLatest(BASE_CODE);
         }
         return cached;
     }
 
-    public BigDecimal convert(BigDecimal amount, String from, String to) throws ExchangeRateException {
-        ExchangeRates rates = client.fetchLatest(BASE_CODE);
-        for (String code : new String[] {from, to}) {
+    public Conversion convert(BigDecimal amount, String from, String to) throws ExchangeRateException {
+        ExchangeRates rates = rates();
+        for (String code : List.of(from, to)) {
             if (!rates.supports(code)) {
                 throw new ExchangeRateException(Reason.UNSUPPORTED_CODE, code);
             }
         }
-        return rates.convert(amount, from, to);
+        BigDecimal rate = rates.rate(from, to);
+        BigDecimal inverse = BigDecimal.ONE.divide(rate, MathContext.DECIMAL64);
+        BigDecimal result = amount.multiply(rate, MathContext.DECIMAL64);
+        return new Conversion(from, to, amount, result, rate, inverse, rates.lastUpdate());
     }
 }

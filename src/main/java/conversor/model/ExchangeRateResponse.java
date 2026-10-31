@@ -1,7 +1,7 @@
 package conversor.model;
 
 import com.google.gson.annotations.SerializedName;
-import io.github.cdimascio.dotenv.Dotenv;
+//import io.github.cdimascio.dotenv.Dotenv;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class ExchangeRateResponse {
 
-    private static final Dotenv DOTENV = Dotenv.configure().ignoreIfMissing().load();
+    //private static final Dotenv DOTENV = Dotenv.configure().ignoreIfMissing().load();
 
     @SerializedName("result")
     private String result;
