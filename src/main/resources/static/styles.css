@@ -1,0 +1,89 @@
+@font-face {
+    font-family: "Raleway";
+    src: url("fonts/Raleway/static/Raleway-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Raleway";
+    src: url("fonts/Raleway/static/Raleway-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Raleway";
+    src: url("fonts/Raleway/static/Raleway-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-display: swap;
+}
+
+:root {
+    --brand: #2E6B3A;
+    --brand-rgb: 46, 107, 58;
+    --bs-body-font-family: "Raleway", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+[data-bs-theme="dark"] {
+    --brand: #8FCC9A;
+    --brand-rgb: 143, 204, 154;
+}
+
+.hero {
+    min-height: 220px;
+    background:
+        linear-gradient(to bottom, rgba(30, 43, 27, 0.15) 30%, rgba(30, 43, 27, 0.92)),
+        url("images/exchange_1.jpg") center / cover;
+}
+
+.converter {
+    max-width: 560px;
+}
+
+.numeric {
+    font-variant-numeric: lining-nums tabular-nums;
+}
+
+.amount-input {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.result-value {
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.btn-outline-brand {
+    --bs-btn-color: var(--brand);
+    --bs-btn-border-color: var(--bs-border-color);
+    --bs-btn-hover-color: var(--brand);
+    --bs-btn-hover-bg: rgba(var(--brand-rgb), 0.1);
+    --bs-btn-hover-border-color: var(--brand);
+    --bs-btn-active-color: var(--brand);
+    --bs-btn-active-bg: rgba(var(--brand-rgb), 0.18);
+    --bs-btn-active-border-color: var(--brand);
+    --bs-btn-disabled-color: var(--bs-secondary-color);
+    --bs-btn-disabled-border-color: var(--bs-border-color);
+    --bs-btn-focus-shadow-rgb: var(--brand-rgb);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 0.25rem rgba(var(--brand-rgb), 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+    }
+}
+
+.swap-button svg{
+    transition: transform 0.25s ease;
+}
+
+.swap-button.is-swapped svg{
+    transform: rotate(180deg);
+}
