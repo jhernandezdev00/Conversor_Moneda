@@ -9,19 +9,7 @@ import javax.swing.*;
 import java.io.IOException;
 
 public class Main {
-    public static void main (String[] args) throws IOException, InterruptedException {
-        conversor.config.AppConfig config = conversor.config.AppConfig.load();
-
-        ExchangeRateClient actTasas = new ExchangeRateClient();
-        Gson gson = new Gson();
-        String response = String.valueOf(actTasas.RatesUpd("USD"));
-        ExchangeRateResponse conversor = gson.fromJson(response, ExchangeRateResponse.class);
-
-        MainFrame mFrame = new MainFrame();
-        if(!(conversor.getResult().equals("success"))){
-            JOptionPane.showMessageDialog(mFrame,config.text("mensajedeAdvertencia"),"ADVERTENCIA",JOptionPane.ERROR_MESSAGE);
-        }
-
+    public static void main (String[] args){
+        SwingUtilities.invokeLater(MainFrame::new);
     }
-
 }

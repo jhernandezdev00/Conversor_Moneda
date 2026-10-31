@@ -1,46 +1,26 @@
 package conversor.service;
 
-import com.google.gson.Gson;
-import conversor.model.ExchangeRateResponse;
+import conversor.model.ExchangeRates;
+import conversor.service.ExchangeRateException.Reason;
 
-import java.io.IOException;
+import java.math.BigDecimal;
 
 public class ConversionService {
-    private Double montoConvertido;
-    private Double conversion_rates;
+    private static final String BASE_CODE = "USD";
 
-    private Gson gson = new Gson();
-    private String response = "";
-    private ExchangeRateResponse conversor = new ExchangeRateResponse();
-    ExchangeRateClient actTasas = new ExchangeRateClient();
+    private final ExchangeRateClient client;
 
+    public ConversionService(ExchangeRateClient client) {
+        this.client = client;
+    }
 
-    public Double getConversion(String claveCountryOrg, String claveCountryDes, Double monto) throws IOException, InterruptedException {
-        try{
-
-            //String status = "";
-            //response = String.valueOf(actTasas.RatesUpd(claveCountryOrg));
-            //System.out.println(response);
-            //conversor = gson.fromJson(response, ExchangeRateResponse.class);
-            //status = conversor.getResult();
-
-            response = String.valueOf(actTasas.RatesUpd(claveCountryOrg));
-            System.out.println(response);
-            conversor = gson.fromJson(response, ExchangeRateResponse.class);
-
-
-            if (!conversor.isSuccess()) {
-                System.out.println(conversor.getErrorType());
-                montoConvertido = Double.NaN;
-            } else {
-                conversion_rates = conversor.getRate(claveCountryDes);
-                System.out.println(conversion_rates);
-                montoConvertido = conversion_rates * monto;
+    public BigDecimal convert(BigDecimal amount, String from, String to) throws ExchangeRateException {
+        ExchangeRates rates = client.fetchLatest(BASE_CODE);
+        for (String code : new String[] {from, to}) {
+            if (!rates.supports(code)) {
+                throw new ExchangeRateException(Reason.UNSUPPORTED_CODE, code);
             }
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
-        return montoConvertido;
+        return rates.convert(amount, from, to);
     }
 }

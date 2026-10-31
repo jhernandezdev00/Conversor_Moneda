@@ -1,10 +1,15 @@
 package conversor.model;
 
 import com.google.gson.annotations.SerializedName;
+import io.github.cdimascio.dotenv.Dotenv;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Map;
 
 public class ExchangeRateResponse {
+
+    private static final Dotenv DOTENV = Dotenv.configure().ignoreIfMissing().load();
 
     @SerializedName("result")
     private String result;
@@ -34,14 +39,25 @@ public class ExchangeRateResponse {
     private String baseCode;
 
     @SerializedName("conversion_rates")
-    private Map<String, Double> conversionRates;
+    private Map<String, BigDecimal> conversionRates;
 
     public boolean isSuccess() {
         return "success".equals(result);
     }
 
-    public Double getRate(String targetCode) {
+    public BigDecimal getRate(String targetCode) {
         return conversionRates == null ? null : conversionRates.get(targetCode);
+    }
+
+    public ExchangeRates toExchangeRates() {
+        if (!isSuccess() || conversionRates == null) {
+            throw new IllegalStateException("La respuesta no contiene tasas: " + errorType);
+        }
+        return new ExchangeRates(
+                baseCode,
+                Instant.ofEpochSecond(timeLastUpdateUnix),
+                Instant.ofEpochSecond(timeNextUpdateUnix),
+                conversionRates);
     }
 
     public String getResult() { return result; }
@@ -53,5 +69,5 @@ public class ExchangeRateResponse {
     public long getTimeNextUpdateUnix() { return timeNextUpdateUnix; }
     public String getTimeNextUpdateUtc() { return timeNextUpdateUtc; }
     public String getBaseCode() { return baseCode; }
-    public Map<String, Double> getConversionRates() { return conversionRates; }
+    public Map<String, BigDecimal> getConversionRates() { return conversionRates; }
 }

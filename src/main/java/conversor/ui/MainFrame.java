@@ -1,18 +1,20 @@
 package conversor.ui;
 
-import conversor.config.Resources;
-import conversor.ui.components.RoundedButton;
-import conversor.service.ConversionService;
-import conversor.ui.components.ImagePanel;
-import conversor.model.CurrencyCatalog;
-import com.google.gson.Gson;
 import conversor.config.AppConfig;
+import conversor.config.Resources;
+import conversor.model.CurrencyCatalog;
+import conversor.service.ConversionService;
+import conversor.service.ExchangeRateClient;
+import conversor.service.ExchangeRateException;
+import conversor.ui.components.ImagePanel;
+import conversor.ui.components.RoundedButton;
+import com.google.gson.Gson;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
 
 public class MainFrame extends JFrame {
@@ -21,30 +23,22 @@ public class MainFrame extends JFrame {
     private JPanel panelDer;
     private ImageIcon imagen_Prin;
     private RoundedButton btnconversion = new RoundedButton();
-    private JComboBox<String>  tiposDivisaDestino = new JComboBox<String>();
-    private JComboBox<String> tiposDivisaOrigen = new JComboBox<String> ();
+    private JComboBox<String> tiposDivisaDestino = new JComboBox<String>();
+    private JComboBox<String> tiposDivisaOrigen = new JComboBox<String>();
     private JTextField registroCantidad = new JTextField();
     private JPanel contenedorPrincipal = new JPanel();
     private JPanel panelContenedor = new JPanel();
     private Gson gson = new Gson();
     private CurrencyCatalog listDivisas = new CurrencyCatalog();
-    private ConversionService conv = new ConversionService();
-    //private Properties prop = new Properties();
-    
-    //private final ConversionService.config.AppConfig config = ConversionService.config.AppConfig.load();
 
     private final AppConfig config = AppConfig.load();
+    private final ConversionService conv = new ConversionService(new ExchangeRateClient(config.apiKey()));
 
     private JLabel texto = new JLabel();
     private JPanel resultados = new JPanel();
-
-    private JLabel resultado_Titulo = new JLabel();
     private RoundedButton btnRegresar = new RoundedButton();
 
-
-
     public MainFrame(){
-        // 1. Crear los paneles base
         mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(new Color(0x615D60));
 
@@ -56,11 +50,9 @@ public class MainFrame extends JFrame {
         mainPanel.add(panelIzq, BorderLayout.WEST);
         mainPanel.add(panelDer, BorderLayout.CENTER);
 
-        // 2. Usarlos
         this.setContentPane(mainPanel);
         configurarFrame();
 
-        // 3. Configurar la ventana
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(760,450);
         this.setLocationRelativeTo(null);
@@ -80,9 +72,6 @@ public class MainFrame extends JFrame {
         panelDer.setBackground(new Color(237,251,205, 255));
 
         try{
-
-            //prop.load(new FileInputStream("src/main.resource/apptextos.properties"));
-            //imagen_Prin = new ImageIcon(config.text("urlImageInicio"));
             imagen_Prin = Resources.imagen(Resources.IMAGEN_INICIO);
 
             this.setTitle(config.text("titulo"));
@@ -96,12 +85,9 @@ public class MainFrame extends JFrame {
             String letter = ("<html>" + (config.text("titulo")).replace("\n", "<br>") + "</html>");
             Font fontRaleway = Resources.fuente(Resources.FUENTE_RALEWAY, 30f);
             titulo.setFont(fontRaleway);
-
             titulo.setText(letter);
-
             titulo.setHorizontalAlignment(SwingConstants.CENTER);
             panelDer.add("North",titulo);
-
 
             contenedorPrincipal.setLayout(new BorderLayout());
             contenedorPrincipal.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -132,7 +118,6 @@ public class MainFrame extends JFrame {
             gbc.anchor = GridBagConstraints.CENTER;
             panelContenedor.add(etiqueta_Instruccion,gbc);
 
-
             registroCantidad.setPreferredSize(new Dimension(160, 25));
             registroCantidad.setBorder(BorderFactory.createEmptyBorder());
             gbc.gridx = 0;
@@ -140,15 +125,9 @@ public class MainFrame extends JFrame {
             gbc.anchor = GridBagConstraints.CENTER;
             panelContenedor.add(registroCantidad,gbc);
 
-
-            //FileReader jsonDivisas = new FileReader("src/main.java.Components/Divisas.json");
-            //Reader jsonDivisas = new InputStreamReader(
-                    //getClass().getResourceAsStream("/data/Divisas.json"), StandardCharsets.UTF_8);
-
             listDivisas = gson.fromJson(Resources.lector(Resources.DIVISAS_JSON), CurrencyCatalog.class);
 
             Collection<String> nameCountrys = listDivisas.getNames();
-
             for (String valor : nameCountrys) {
                 tiposDivisaOrigen.addItem(valor);
                 tiposDivisaDestino.addItem(valor);
@@ -156,7 +135,6 @@ public class MainFrame extends JFrame {
 
             tiposDivisaOrigen.setBackground((new Color(237,251,205, 192)));
             tiposDivisaOrigen.setForeground(Color.black);
-
             tiposDivisaDestino.setBackground((new Color(237,251,205, 192)));
             tiposDivisaDestino.setForeground(Color.black);
 
@@ -198,67 +176,65 @@ public class MainFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String cantidad = registroCantidad.getText();
+                if (cantidad.isEmpty()) {
+                    return;
+                }
 
-                if(!cantidad.isEmpty()){
-                    Double cantidadDouble = Double.parseDouble(cantidad);
-                    String CountryRate1 = String.valueOf(tiposDivisaOrigen.getSelectedItem());
-                    String CountryRate2 = String.valueOf(tiposDivisaDestino.getSelectedItem());
+                BigDecimal monto;
+                try {
+                    monto = new BigDecimal(cantidad);
+                } catch (NumberFormatException ex) {
+                    return;
+                }
 
-                    String claveCountryOrg = listDivisas.getCode(CountryRate1);
-                    String claveCountryDes = listDivisas.getCode(CountryRate2);
+                String nombreOrigen = String.valueOf(tiposDivisaOrigen.getSelectedItem());
+                String nombreDestino = String.valueOf(tiposDivisaDestino.getSelectedItem());
+                String claveOrigen = listDivisas.getCode(nombreOrigen);
+                String claveDestino = listDivisas.getCode(nombreDestino);
 
-                    System.out.println(claveCountryOrg);
-                    System.out.println(claveCountryDes);
-                    try {
-                        final Double montoConvertido = conv.getConversion(claveCountryOrg,claveCountryDes,cantidadDouble);
+                try {
+                    BigDecimal montoConvertido = conv.convert(monto, claveOrigen, claveDestino)
+                            .setScale(2, RoundingMode.HALF_UP);
 
-                        if(!Double.isNaN(montoConvertido)){
+                    panelDer.add(resultados);
+                    contenedorPrincipal.setVisible(false);
+                    resultados.setVisible(true);
 
-                            panelDer.add(resultados);
-                            contenedorPrincipal.setVisible(false);
-                            resultados.setVisible(true);
+                    resultados.setLayout(new GridBagLayout());
+                    GridBagConstraints gbc1 = new GridBagConstraints();
+                    resultados.setBackground(new Color(237,251,205, 192));
 
-                            resultados.setLayout(new GridBagLayout());
-                            GridBagConstraints gbc1 = new GridBagConstraints();
-                            resultados.setBackground(new Color(237,251,205, 192));
+                    gbc1.gridx = 0;
+                    gbc1.gridy = 0;
+                    gbc1.anchor = GridBagConstraints.CENTER;
+                    JLabel resultadoConversion = new JLabel(config.text("mensajeConversion"));
+                    gbc1.insets = new Insets(10, 10, 10, 10);
+                    resultadoConversion.setFont(new Font("Arial", Font.BOLD, 30));
+                    resultados.add(resultadoConversion,gbc1);
 
-                            gbc1.gridx = 0;
-                            gbc1.gridy = 0;
-                            gbc1.anchor = GridBagConstraints.CENTER;
-                            JLabel resultadoConversion = new JLabel(config.text("mensajeConversion"));
-                            gbc1.insets = new Insets(10, 10, 10, 10);
-                            resultadoConversion.setFont(new Font("Arial", Font.BOLD, 30));
-                            resultados.add(resultadoConversion,gbc1);
+                    gbc1.gridx = 0;
+                    gbc1.gridy = 1;
+                    gbc1.anchor = GridBagConstraints.CENTER;
+                    JLabel divisasConversion = new JLabel("$ " + monto.toPlainString() + " " + nombreOrigen + " = ");
+                    divisasConversion.setFont(new Font("Arial", Font.BOLD, 28));
+                    resultados.add(divisasConversion,gbc1);
 
-                            gbc1.gridx = 0;
-                            gbc1.gridy = 1;
-                            gbc1.anchor = GridBagConstraints.CENTER;
-                            JLabel divisasConversion = new JLabel("$ "+cantidadDouble+" "+CountryRate1+" = ");
-                            divisasConversion.setFont(new Font("Arial", Font.BOLD, 28));
-                            resultados.add(divisasConversion,gbc1);
+                    gbc1.gridx = 0;
+                    gbc1.gridy = 2;
+                    gbc1.anchor = GridBagConstraints.CENTER;
+                    JLabel divisasConvertida = new JLabel("$ " + montoConvertido.toPlainString() + " " + nombreDestino);
+                    divisasConvertida.setFont(new Font("Arial", Font.BOLD, 22));
+                    resultados.add(divisasConvertida,gbc1);
 
-                            gbc1.gridx = 0;
-                            gbc1.gridy = 2;
-                            gbc1.anchor = GridBagConstraints.CENTER;
-                            JLabel divisasConvertida = new JLabel("$ "+montoConvertido+" "+CountryRate2);
-                            divisasConvertida.setFont(new Font("Arial", Font.BOLD, 22));
-                            resultados.add(divisasConvertida,gbc1);
+                    btnRegresar.setText(config.text("regresarMenu"));
+                    gbc1.gridx = 0;
+                    gbc1.gridy = 3;
+                    gbc1.anchor = GridBagConstraints.CENTER;
+                    resultados.add(btnRegresar,gbc1);
 
-                            btnRegresar.setText(config.text("regresarMenu"));
-                            gbc1.gridx = 0;
-                            gbc1.gridy = 3;
-                            gbc1.anchor = GridBagConstraints.CENTER;
-                            resultados.add(btnRegresar,gbc1);
-
-                        }else {
-                            JOptionPane.showMessageDialog(mainPanel,config.text("mensajedeAdvertencia"),"ADVERTENCIA",JOptionPane.ERROR_MESSAGE);
-                        }
-
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                } catch (ExchangeRateException ex) {
+                    JOptionPane.showMessageDialog(mainPanel, mensajeDeError(ex),
+                            config.text("tituloError"), JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -268,15 +244,21 @@ public class MainFrame extends JFrame {
             public void keyTyped(KeyEvent e) {
                 char caracter = e.getKeyChar();
                 if (((caracter < '0') || (caracter > '9')) && (caracter != KeyEvent.VK_BACK_SPACE) && (caracter != '.' || registroCantidad.getText().contains(".")) ) {
-                    System.out.println("Solo se permiten números");
                     e.consume();
                 }
             }
         });
+    }
 
+    private String mensajeDeError(ExchangeRateException ex) {
+        return switch (ex.reason()) {
+            case MISSING_KEY -> config.text("error.missingKey");
+            case NETWORK -> config.text("error.network");
+            case INVALID_KEY -> config.text("error.invalidKey");
+            case QUOTA_REACHED -> config.text("error.quota");
+            case INACTIVE_ACCOUNT -> config.text("error.inactive");
+            case UNSUPPORTED_CODE -> config.text("error.unsupported", ex.detail());
+            case UNKNOWN -> config.text("error.unknown", ex.detail());
+        };
     }
 }
-
-
-
-
