@@ -2,20 +2,19 @@ package conversor.ui;
 
 import conversor.config.AppConfig;
 import conversor.config.Resources;
-import conversor.model.CurrencyCatalog;
+import conversor.model.Currency;
 import conversor.service.ConversionService;
+import conversor.service.CurrencyCatalog;
 import conversor.service.ExchangeRateClient;
 import conversor.service.ExchangeRateException;
 import conversor.ui.components.ImagePanel;
 import conversor.ui.components.RoundedButton;
-import com.google.gson.Gson;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collection;
 
 public class MainFrame extends JFrame {
     private JPanel mainPanel;
@@ -23,15 +22,14 @@ public class MainFrame extends JFrame {
     private JPanel panelDer;
     private ImageIcon imagen_Prin;
     private RoundedButton btnconversion = new RoundedButton();
-    private JComboBox<String> tiposDivisaDestino = new JComboBox<String>();
-    private JComboBox<String> tiposDivisaOrigen = new JComboBox<String>();
+    private JComboBox<Currency> tiposDivisaDestino = new JComboBox<>();
+    private JComboBox<Currency> tiposDivisaOrigen = new JComboBox<>();
     private JTextField registroCantidad = new JTextField();
     private JPanel contenedorPrincipal = new JPanel();
     private JPanel panelContenedor = new JPanel();
-    private Gson gson = new Gson();
-    private CurrencyCatalog listDivisas = new CurrencyCatalog();
 
     private final AppConfig config = AppConfig.load();
+    private final CurrencyCatalog catalogo = CurrencyCatalog.load();
     private final ConversionService conv = new ConversionService(new ExchangeRateClient(config.apiKey()));
 
     private JLabel texto = new JLabel();
@@ -125,13 +123,12 @@ public class MainFrame extends JFrame {
             gbc.anchor = GridBagConstraints.CENTER;
             panelContenedor.add(registroCantidad,gbc);
 
-            listDivisas = gson.fromJson(Resources.lector(Resources.DIVISAS_JSON), CurrencyCatalog.class);
-
-            Collection<String> nameCountrys = listDivisas.getNames();
-            for (String valor : nameCountrys) {
-                tiposDivisaOrigen.addItem(valor);
-                tiposDivisaDestino.addItem(valor);
+            for (Currency divisa : catalogo.all()) {
+                tiposDivisaOrigen.addItem(divisa);
+                tiposDivisaDestino.addItem(divisa);
             }
+            tiposDivisaOrigen.setSelectedItem(buscar("USD"));
+            tiposDivisaDestino.setSelectedItem(buscar("MXN"));
 
             tiposDivisaOrigen.setBackground((new Color(237,251,205, 192)));
             tiposDivisaOrigen.setForeground(Color.black);
@@ -187,10 +184,12 @@ public class MainFrame extends JFrame {
                     return;
                 }
 
-                String nombreOrigen = String.valueOf(tiposDivisaOrigen.getSelectedItem());
-                String nombreDestino = String.valueOf(tiposDivisaDestino.getSelectedItem());
-                String claveOrigen = listDivisas.getCode(nombreOrigen);
-                String claveDestino = listDivisas.getCode(nombreDestino);
+                Currency origen = (Currency) tiposDivisaOrigen.getSelectedItem();
+                Currency destino = (Currency) tiposDivisaDestino.getSelectedItem();
+                String claveOrigen = origen.code();
+                String claveDestino = destino.code();
+                String nombreOrigen = origen.name();
+                String nombreDestino = destino.name();
 
                 try {
                     BigDecimal montoConvertido = conv.convert(monto, claveOrigen, claveDestino)
@@ -248,6 +247,15 @@ public class MainFrame extends JFrame {
                 }
             }
         });
+    }
+
+    private Currency buscar(String codigo) {
+        for (Currency c : catalogo.all()) {
+            if (c.code().equals(codigo)) {
+                return c;
+            }
+        }
+        return null;
     }
 
     private String mensajeDeError(ExchangeRateException ex) {
